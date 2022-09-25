@@ -29,7 +29,12 @@ function pqrc_dispaly_qrcode( $content ) {
     }
 
     //Post QR Code Image dimension hook
-    $dimension= apply_filters('pqrc_image_dimension','220x220');
+    $height=get_option('pqrc_height');
+    $width=get_option('pqrc_width');
+    $height=$height?$height:200;
+    $width=$width?$width:200;
+
+    $dimension= apply_filters('pqrc_image_dimension',"{$width}x{$height}");
 
     //Post QR Code Image Attributes
     $image_attributes=apply_filters('pqrc_image_attributes',null);
@@ -39,3 +44,27 @@ function pqrc_dispaly_qrcode( $content ) {
     return $content;
 }
 add_filter( 'the_content', 'pqrc_dispaly_qrcode');
+
+
+function pqrc_setting_init(){
+    add_settings_section('pqrc_section', __('Post QR Code Settings','pqrc'), 'pqrc_settings_section','general');
+
+    add_settings_field('pqrc_height',__('QR Code Height','pqrc'),'pqrc_display_height','general','pqrc_section');
+    add_settings_field('pqrc_width',__('QR Code Width','pqrc'),'pqrc_display_width','general','pqrc_section');
+    
+    register_setting('general','pqrc_height', array('sanitize_callback'=>'esc_attr'));
+    register_setting('general','pqrc_width', array('sanitize_callback'=>'esc_attr'));
+}
+
+function pqrc_settings_section(){
+    echo '<p>'.__("Post QR Code Settings Options","pqrc").'</p>';
+}
+function pqrc_display_height(){
+    $height=get_option('pqrc_height');
+    printf('<input type="text" name="%s" id="%s" value="%s"', 'pqrc_height', 'pqrc_height', $height);
+}
+function pqrc_display_width(){
+    $width=get_option('pqrc_width');
+    printf('<input type="text" name="%s" id="%s" value="%s"', 'pqrc_width', 'pqrc_width', $width);
+}
+add_action('admin_init', 'pqrc_setting_init');
